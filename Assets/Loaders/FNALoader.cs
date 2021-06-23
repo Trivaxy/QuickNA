@@ -21,7 +21,7 @@ namespace QuickNA.Assets.Loaders
 		public void Load(string path)
 		{
 			T asset = LoadAsset(path.Substring(AssetServer.RootDirectory.Length).TrimStart(Path.DirectorySeparatorChar));
-			string fileName = Path.GetFileName(path);
+			string fileName = Path.GetFileNameWithoutExtension(path);
 
 			// this check is needed in order to dispose assets that are being replaced, to avoid a memory leak
 			if (Assets<T>.Has(fileName) && Assets<T>.Get(fileName) is IDisposable disposable)
