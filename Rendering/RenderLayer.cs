@@ -73,6 +73,7 @@ namespace QuickNA.Rendering
 			InnerEffect = innerEffect;
 			TransformationMatrix = transformMatrix;
 			ClearColor = clearColor;
+			Active = true;
 			draws = new List<DrawInfo>();
 			this.graphicsDevice = graphicsDevice;
 			RenderTarget = new RenderTarget2D(graphicsDevice, width, height);
