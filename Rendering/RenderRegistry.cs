@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using QuickNA.Essentials;
 using System.Collections.Generic;
 
 namespace QuickNA.Rendering
@@ -75,6 +76,9 @@ namespace QuickNA.Rendering
 
 		internal static void RenderAll(SpriteBatch spriteBatch)
 		{
+			foreach (Entity entity in World.QueryEntities<Entity>())
+				entity.Draw();
+
 			foreach ((_, RenderLayer layer) in renderLayers)
 				if (layer.Active)
 					layer.Draw(spriteBatch);
