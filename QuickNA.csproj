@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="README.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="FNA">
       <HintPath>bin\Debug\netcoreapp3.1\FNA.dll</HintPath>
     </Reference>
