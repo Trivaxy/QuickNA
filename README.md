@@ -27,4 +27,6 @@ public class MovingBehavior : QueryBehavior<MovingEntity>
     }
 }
 ```
-Done! Behaviors in QuickNA must be registered before they can be used, which is super simple. You should probably read the overview first before before moving on to registering. (WIP)
+Done! Behaviors in QuickNA must be registered before they can be used, which is super simple.
+
+You should probably read the [wiki](https://github.com/Trivaxy/QuickNA/wiki) first before before moving on to registering; it covers most of QuickNA in 10 minutes.
