@@ -30,8 +30,7 @@ namespace QuickNA
 		protected sealed override void Initialize()
 		{
 			World.RegisterBehavior(new InputBehavior());
-			RegisterBehaviors();
-			RegisterRenderLayers();
+			Setup();
 
 			base.Initialize();
 		}
@@ -59,10 +58,15 @@ namespace QuickNA
 
 		protected sealed override void Update(GameTime gameTime) => World.Update(gameTime);
 
+		/// <summary>
+		/// Called when QuickNA is registering loaders. Register your loaders here.
+		/// You can also manually add or remove assets as needed in this method as well as set the default value for assets.
+		/// </summary>
 		protected virtual void RegisterLoaders() { }
 
-		protected virtual void RegisterBehaviors() { }
-
-		protected virtual void RegisterRenderLayers() { }
+		/// <summary>
+		/// Called when your game is initializing. Use this method to register behaviors and renderlayers.
+		/// </summary>
+		protected virtual void Setup() { }
 	}
 }

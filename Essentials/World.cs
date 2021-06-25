@@ -81,6 +81,16 @@ namespace QuickNA.Essentials
 		}
 
 		/// <summary>
+		/// Registers multiple behaviors in order in the world, allowing them to update every tick.
+		/// </summary>
+		/// <param name="behaviors">The behaviors to register.</param>
+		public static void RegisterBehaviors(params IBehavior[] behaviors)
+		{
+			foreach (IBehavior behavior in behaviors)
+				RegisterBehavior(behavior);
+		}
+
+		/// <summary>
 		/// Kills all entities in the world.
 		/// </summary>
 		public static void KillAllEntities()
@@ -99,6 +109,19 @@ namespace QuickNA.Essentials
 			foreach (Entity entity in entities)
 				if (entity is T t)
 					yield return t;
+		}
+
+		/// <summary>
+		/// Yields all entities that are of the specified types/interfaces.
+		/// </summary>
+		/// <typeparam name="T">The first type/interface.</typeparam>
+		/// <typeparam name="U">The second type/interface.</typeparam>
+		/// <returns>An iterator over all matching entities.</returns>
+		public static IEnumerable<(T, U)> QueryEntities<T, U>()
+		{
+			foreach (Entity entity in entities)
+				if (entity is T t && entity is U u)
+					yield return (t, u);
 		}
 	}
 }
