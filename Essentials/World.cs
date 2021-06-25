@@ -8,7 +8,8 @@ namespace QuickNA.Essentials
 	{
 		private static Entity[] entities = new Entity[500];
 		private static int nextFreeSlot;
-		private static IList<IBehavior> behaviors = new List<IBehavior>();
+		private static IList<IBehavior> activeBehaviors = new List<IBehavior>();
+		private static IList<IBehavior> startupBehaviors = new List<IBehavior>();
 
 		/// <summary>
 		/// The amount of active entities currently in the world.
@@ -32,7 +33,7 @@ namespace QuickNA.Essentials
 		{
 			GameTime = gameTime;
 
-			foreach (IBehavior behavior in behaviors)
+			foreach (IBehavior behavior in activeBehaviors)
 				behavior.Update();
 		}
 
@@ -73,11 +74,11 @@ namespace QuickNA.Essentials
 		/// <param name="behavior">The behavior to register.</param>
 		public static void RegisterBehavior(IBehavior behavior)
 		{
-			foreach (IBehavior otherBehavior in behaviors)
+			foreach (IBehavior otherBehavior in activeBehaviors)
 				if (behavior.GetType() == otherBehavior.GetType())
 					throw new QuickNAException("Cannot register a behavior more than once: " + behavior);
 
-			behaviors.Add(behavior);
+			activeBehaviors.Add(behavior);
 		}
 
 		/// <summary>
@@ -88,6 +89,29 @@ namespace QuickNA.Essentials
 		{
 			foreach (IBehavior behavior in behaviors)
 				RegisterBehavior(behavior);
+		}
+
+		/// <summary>
+		/// Registers a startup behavior, which calls it once when your game starts.
+		/// </summary>
+		/// <param name="behavior">The behavior to register.</param>
+		public static void RegisterStartupBehavior(IBehavior behavior)
+		{
+			foreach (IBehavior otherBehavior in startupBehaviors)
+				if (behavior.GetType() == otherBehavior.GetType())
+					throw new QuickNAException("Cannot register a behavior more than once: " + behavior);
+
+			startupBehaviors.Add(behavior);
+		}
+
+		/// <summary>
+		/// Registers multiple startup behaviors in order in the world, calling them once when your game starts.
+		/// </summary>
+		/// <param name="behaviors">The behaviors to register.</param>
+		public static void RegisterStartupBehaviors(params IBehavior[] behaviors)
+		{
+			foreach (IBehavior behavior in behaviors)
+				RegisterStartupBehavior(behavior);
 		}
 
 		/// <summary>
@@ -122,6 +146,12 @@ namespace QuickNA.Essentials
 			foreach (Entity entity in entities)
 				if (entity is T t && entity is U u)
 					yield return (t, u);
+		}
+
+		internal static void RunStartupBehaviors()
+		{
+			foreach (IBehavior behavior in startupBehaviors)
+				behavior.Update();
 		}
 	}
 }

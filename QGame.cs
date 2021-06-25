@@ -51,6 +51,8 @@ namespace QuickNA
 
 			AssetServer.Start();
 
+			World.RunStartupBehaviors(); // placed in LoadContent in case the behaviors rely on assets
+
 			base.LoadContent();
 		}
 
