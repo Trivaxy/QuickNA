@@ -24,6 +24,6 @@ namespace QuickNA.Essentials
 		/// </summary>
 		public static bool IsKeyJustReleased(Keys key) => !Keyboard.GetState().IsKeyDown(key) && previousKeyboardState.IsKeyDown(key);
 
-		public void Update() => previousKeyboardState = Keyboard.GetState();
+		public void Run() => previousKeyboardState = Keyboard.GetState();
 	}
 }

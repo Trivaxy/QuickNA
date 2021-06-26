@@ -1,14 +1,14 @@
 ﻿namespace QuickNA.Essentials
 {
 	/// <summary>
-	/// Implementing this interface allows your class to update every tick.
-	/// Make sure to register your implementing class in order for it to update.
+	/// Implementing this interface allows your class to be used as a behavior.
+	/// Make sure to register your behavior.
 	/// </summary>
 	public interface IBehavior
 	{
 		/// <summary>
-		/// Called every tick.
+		/// Called when the behavior runs.
 		/// </summary>
-		void Update();
+		void Run();
 	}
 }

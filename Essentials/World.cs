@@ -34,7 +34,7 @@ namespace QuickNA.Essentials
 			GameTime = gameTime;
 
 			foreach (IBehavior behavior in activeBehaviors)
-				behavior.Update();
+				behavior.Run();
 		}
 
 		/// <summary>
@@ -69,7 +69,7 @@ namespace QuickNA.Essentials
 		}
 
 		/// <summary>
-		/// Registers a behavior in the world, allowing it to update every tick.
+		/// Registers a behavior in the world, causing it to run every tick.
 		/// </summary>
 		/// <param name="behavior">The behavior to register.</param>
 		public static void RegisterBehavior(IBehavior behavior)
@@ -82,7 +82,7 @@ namespace QuickNA.Essentials
 		}
 
 		/// <summary>
-		/// Registers multiple behaviors in order in the world, allowing them to update every tick.
+		/// Registers multiple behaviors in order in the world, causing them to update every tick.
 		/// </summary>
 		/// <param name="behaviors">The behaviors to register.</param>
 		public static void RegisterBehaviors(params IBehavior[] behaviors)
@@ -92,7 +92,7 @@ namespace QuickNA.Essentials
 		}
 
 		/// <summary>
-		/// Registers a startup behavior, which calls it once when your game starts.
+		/// Registers a startup behavior, which runs it only once when your game starts.
 		/// </summary>
 		/// <param name="behavior">The behavior to register.</param>
 		public static void RegisterStartupBehavior(IBehavior behavior)
@@ -105,7 +105,7 @@ namespace QuickNA.Essentials
 		}
 
 		/// <summary>
-		/// Registers multiple startup behaviors in order in the world, calling them once when your game starts.
+		/// Registers multiple startup behaviors in order in the world, running them only once when your game starts.
 		/// </summary>
 		/// <param name="behaviors">The behaviors to register.</param>
 		public static void RegisterStartupBehaviors(params IBehavior[] behaviors)
@@ -151,7 +151,7 @@ namespace QuickNA.Essentials
 		internal static void RunStartupBehaviors()
 		{
 			foreach (IBehavior behavior in startupBehaviors)
-				behavior.Update();
+				behavior.Run();
 		}
 	}
 }
