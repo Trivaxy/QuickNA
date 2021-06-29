@@ -50,7 +50,7 @@ namespace QuickNA.Essentials
 			entity.ID = nextFreeSlot;
 			AliveEntities++;
 
-			if (nextFreeSlot + 1 < entities.Length && entities[nextFreeSlot] == null)
+			if (nextFreeSlot + 1 < entities.Length && entities[nextFreeSlot + 1] == null)
 				nextFreeSlot++;
 			else
 				for (int i = 0; i < nextFreeSlot; i++)
@@ -131,7 +131,7 @@ namespace QuickNA.Essentials
 		public static IEnumerable<T> QueryEntities<T>()
 		{
 			foreach (Entity entity in entities)
-				if (entity is T t)
+				if (entity != null && entity is T t)
 					yield return t;
 		}
 
@@ -144,7 +144,7 @@ namespace QuickNA.Essentials
 		public static IEnumerable<(T, U)> QueryEntities<T, U>()
 		{
 			foreach (Entity entity in entities)
-				if (entity is T t && entity is U u)
+				if (entity != null && entity is T t && entity is U u)
 					yield return (t, u);
 		}
 
