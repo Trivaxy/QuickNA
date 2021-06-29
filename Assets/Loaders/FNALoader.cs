@@ -7,7 +7,7 @@ namespace QuickNA.Assets.Loaders
 	/// Loader that is designed to load content types in FNA.
 	/// FNALoader instances for important content types are automatically registered when your game starts.
 	/// </summary>
-	public sealed class FNALoader<T> : ILoader
+	public sealed class FNALoader<T> : ILoader // this will likely become an internal class in the future
 	{
 		private string requestedFileExtension;
 

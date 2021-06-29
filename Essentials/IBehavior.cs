@@ -2,7 +2,6 @@
 {
 	/// <summary>
 	/// Implementing this interface allows your class to be used as a behavior.
-	/// Make sure to register your behavior.
 	/// </summary>
 	public interface IBehavior
 	{
