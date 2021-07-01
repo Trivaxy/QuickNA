@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using QuickNA.Assets;
 using System;
 using System.Collections.Generic;
 
@@ -7,18 +8,40 @@ namespace QuickNA.Rendering
 {
 	public sealed class RenderLayer
 	{
-		private struct DrawInfo
+		private interface IDrawable
 		{
-			public readonly Texture2D Texture;
-			public readonly Vector2 Position;
-			public readonly Rectangle? SourceRectangle;
-			public readonly Color Color;
-			public readonly float Rotation;
-			public readonly Vector2 Origin;
-			public readonly Vector2 Scale;
-			public readonly SpriteEffects SpriteEffects;
-			
-			public DrawInfo(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects spriteEffects)
+			public Vector2 Position { get; init; }
+
+			public Color Color { get; init; }
+
+			public float Rotation { get; init; }
+
+			public Vector2 Origin { get; init; }
+
+			public Vector2 Scale { get; init; }
+
+			public void Draw(SpriteBatch spriteBatch);
+		}
+
+		private struct TextureDraw : IDrawable
+		{
+			public Texture2D Texture { get; init; }
+
+			public Vector2 Position { get; init; }
+
+			public Rectangle? SourceRectangle { get; init; }
+
+			public Color Color { get; init; }
+
+			public float Rotation { get; init; }
+
+			public Vector2 Origin { get; init; }
+
+			public Vector2 Scale { get; init; }
+
+			public SpriteEffects SpriteEffects { get; init; }
+
+			public TextureDraw(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects spriteEffects)
 			{
 				Texture = texture;
 				Position = position;
@@ -29,6 +52,43 @@ namespace QuickNA.Rendering
 				Scale = scale;
 				SpriteEffects = spriteEffects;
 			}
+
+			public void Draw(SpriteBatch spriteBatch)
+				=> spriteBatch.Draw(Texture, Position, SourceRectangle, Color, Rotation, Origin, Scale, SpriteEffects, 0f);
+		}
+
+		private struct StringDraw : IDrawable
+		{
+			public FontStashSharp.FontSystem FontSystem { get; init; }
+
+			public int FontSize { get; init; }
+
+			public string Text { get; init; }
+
+			public Vector2 Position { get; init; }
+
+			public Color Color { get; init; }
+
+			public float Rotation { get; init; }
+
+			public Vector2 Origin { get; init; }
+
+			public Vector2 Scale { get; init; }
+
+			public StringDraw(FontStashSharp.FontSystem font, int fontSize, string text, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale)
+			{
+				FontSystem = font;
+				FontSize = fontSize;
+				Text = text;
+				Position = position;
+				Color = color;
+				Rotation = rotation;
+				Origin = origin;
+				Scale = scale;
+			}
+
+			public void Draw(SpriteBatch spriteBatch)
+				=> FontSystem.GetFont(FontSize).DrawText(spriteBatch, Text, Position, Color, Scale, Rotation, Origin);
 		}
 
 		public readonly SpriteSortMode SpriteSortMode;
@@ -42,7 +102,7 @@ namespace QuickNA.Rendering
 		public Matrix TransformationMatrix;
 		public Color ClearColor;
 		public bool Active;
-		private IList<DrawInfo> draws;
+		private IList<IDrawable> draws;
 		private GraphicsDevice graphicsDevice;
 		private Action<Effect> postEffectSetup;
 		private Action<Effect> innerEffectSetup;
@@ -74,7 +134,7 @@ namespace QuickNA.Rendering
 			TransformationMatrix = transformMatrix;
 			ClearColor = clearColor;
 			Active = true;
-			draws = new List<DrawInfo>();
+			draws = new List<IDrawable>();
 			this.graphicsDevice = graphicsDevice;
 			RenderTarget = new RenderTarget2D(graphicsDevice, width, height);
 			this.postEffectSetup = postEffectSetup;
@@ -82,10 +142,16 @@ namespace QuickNA.Rendering
 		}
 
 		public void Render(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale, SpriteEffects spriteEffects)
-			=> draws.Add(new DrawInfo(texture, position, sourceRectangle, color, rotation, origin, new Vector2(scale), spriteEffects));
+			=> draws.Add(new TextureDraw(texture, position, sourceRectangle, color, rotation, origin, new Vector2(scale), spriteEffects));
 
 		public void Render(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects spriteEffects)
-			=> draws.Add(new DrawInfo(texture, position, sourceRectangle, color, rotation, origin, scale, spriteEffects));
+			=> draws.Add(new TextureDraw(texture, position, sourceRectangle, color, rotation, origin, scale, spriteEffects));
+
+		public void RenderText(string text, FontSystem font, int size, Vector2 position, Color color, float rotation, Vector2 origin, float scale)
+			=> draws.Add(new StringDraw(font.fontSystem, size, text, position, color, rotation, origin, new Vector2(scale)));
+
+		public void RenderText(string text, FontSystem font, int size, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale)
+			=> draws.Add(new StringDraw(font.fontSystem, size, text, position, color, rotation, origin, scale));
 
 		internal void RenderToTarget(SpriteBatch spriteBatch)
 		{
@@ -96,8 +162,8 @@ namespace QuickNA.Rendering
 
 			spriteBatch.Begin(SpriteSortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, InnerEffect, TransformationMatrix);
 
-			foreach (DrawInfo draw in draws)
-				spriteBatch.Draw(draw.Texture, draw.Position, draw.SourceRectangle, draw.Color, draw.Rotation, draw.Origin, draw.Scale, draw.SpriteEffects, 0f);
+			foreach (IDrawable drawable in draws)
+				drawable.Draw(spriteBatch);
 
 			spriteBatch.End();
 

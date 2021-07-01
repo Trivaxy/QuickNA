@@ -5,6 +5,7 @@ using QuickNA.Assets;
 using QuickNA.Assets.Loaders;
 using QuickNA.Essentials;
 using QuickNA.Rendering;
+using System.Reflection;
 
 namespace QuickNA
 {
@@ -29,6 +30,8 @@ namespace QuickNA
 
 		protected sealed override void Initialize()
 		{
+			Assembly.LoadFrom("StbTrueTypeSharp.dll"); // needed for FontStashSharp to function without adding a reference to this dll
+
 			World.RegisterBehavior(new InputBehavior());
 			Setup();
 
@@ -43,6 +46,7 @@ namespace QuickNA
 
 			AssetServer.RegisterLoader(new FNALoader<Texture2D>(".png"));
 			AssetServer.RegisterLoader(new FNALoader<SoundEffect>(".wav"));
+			AssetServer.RegisterLoader(new FontSystemLoader());
 
 			Assets<Texture2D>.DefaultValue = new Texture2D(GraphicsDevice, 1, 1);
 			Assets<SoundEffect>.DefaultValue = new SoundEffect(new byte[] { 0 }, 0, AudioChannels.Mono);
