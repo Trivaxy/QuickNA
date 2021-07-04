@@ -8,6 +8,7 @@ namespace QuickNA.Essentials
 	public class InputBehavior : IBehavior
 	{
 		internal static KeyboardState previousKeyboardState;
+		internal static MouseState previousMouseState;
 
 		/// <summary>
 		/// Checks if the specified key is pressed.
@@ -17,13 +18,57 @@ namespace QuickNA.Essentials
 		/// <summary>
 		/// Checks if the specified key has just been pressed.
 		/// </summary>
-		public static bool IsKeyJustPressed(Keys key) => Keyboard.GetState().IsKeyDown(key) && !previousKeyboardState.IsKeyDown(key);
+		public static bool IsKeyJustPressed(Keys key) => IsKeyPressed(key) && !previousKeyboardState.IsKeyDown(key);
 
 		/// <summary>
 		/// Checks if the specified key has just been released.
 		/// </summary>
-		public static bool IsKeyJustReleased(Keys key) => !Keyboard.GetState().IsKeyDown(key) && previousKeyboardState.IsKeyDown(key);
+		public static bool IsKeyJustReleased(Keys key) => !IsKeyPressed(key) && previousKeyboardState.IsKeyDown(key);
 
-		public void Run() => previousKeyboardState = Keyboard.GetState();
+		/// <summary>
+		/// Checks if the left mouse button is currently pressed.
+		/// </summary>
+		public static bool IsMouseLeftPressed() => Mouse.GetState().LeftButton == ButtonState.Pressed;
+
+		/// <summary>
+		/// Checks if the left mouse button is not pressed.
+		/// </summary>
+		public static bool IsMouseLeftReleased() => Mouse.GetState().LeftButton == ButtonState.Released;
+
+		/// <summary>
+		/// Checks if the right mouse button is currently pressed.
+		/// </summary>
+		public static bool IsMouseRightPressed() => Mouse.GetState().RightButton == ButtonState.Pressed;
+
+		/// <summary>
+		/// Checks if the right mouse button is not pressed.
+		/// </summary>
+		public static bool IsMouseRightReleased() => Mouse.GetState().LeftButton == ButtonState.Released;
+
+		/// <summary>
+		/// Checks if the left mouse button was just clicked.
+		/// </summary>
+		public static bool IsMouseLeftJustClicked() => IsMouseLeftPressed() && previousMouseState.LeftButton == ButtonState.Released;
+
+		/// <summary>
+		/// Checks if the left mouse button was just released.
+		/// </summary>
+		public static bool IsMouseLeftJustReleased() => !IsMouseLeftPressed() && previousMouseState.LeftButton == ButtonState.Pressed;
+
+		/// <summary>
+		/// Checks if the left mouse button was just clicked.
+		/// </summary>
+		public static bool IsMouseRightJustClicked() => IsMouseRightPressed() && previousMouseState.RightButton == ButtonState.Released;
+
+		/// <summary>
+		/// Checks if the left mouse button was just released.
+		/// </summary>
+		public static bool IsMouseRightJustReleased() => !IsMouseRightPressed() && previousMouseState.RightButton == ButtonState.Pressed;
+
+		public void Run()
+		{
+			previousKeyboardState = Keyboard.GetState();
+			previousMouseState = Mouse.GetState();
+		}
 	}
 }
