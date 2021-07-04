@@ -8,13 +8,15 @@ namespace QuickNA.Essentials
 	/// </summary>
 	public class InputBehavior : IBehavior
 	{
-		internal static KeyboardState previousKeyboardState;
-		internal static MouseState previousMouseState;
+		private static KeyboardState currentKeyboardState;
+		private static KeyboardState previousKeyboardState;
+		private static MouseState currentMouseState;
+		private static MouseState previousMouseState;
 
 		/// <summary>
 		/// Checks if the specified key is pressed.
 		/// </summary>
-		public static bool IsKeyPressed(Keys key) => Keyboard.GetState().IsKeyDown(key);
+		public static bool IsKeyPressed(Keys key) => currentKeyboardState.IsKeyDown(key);
 
 		/// <summary>
 		/// Checks if the specified key has just been pressed.
@@ -29,22 +31,22 @@ namespace QuickNA.Essentials
 		/// <summary>
 		/// Checks if the left mouse button is currently pressed.
 		/// </summary>
-		public static bool IsMouseLeftPressed() => Mouse.GetState().LeftButton == ButtonState.Pressed;
+		public static bool IsMouseLeftPressed() => currentMouseState.LeftButton == ButtonState.Pressed;
 
 		/// <summary>
 		/// Checks if the left mouse button is not pressed.
 		/// </summary>
-		public static bool IsMouseLeftReleased() => Mouse.GetState().LeftButton == ButtonState.Released;
+		public static bool IsMouseLeftReleased() => currentMouseState.LeftButton == ButtonState.Released;
 
 		/// <summary>
 		/// Checks if the right mouse button is currently pressed.
 		/// </summary>
-		public static bool IsMouseRightPressed() => Mouse.GetState().RightButton == ButtonState.Pressed;
+		public static bool IsMouseRightPressed() => currentMouseState.RightButton == ButtonState.Pressed;
 
 		/// <summary>
 		/// Checks if the right mouse button is not pressed.
 		/// </summary>
-		public static bool IsMouseRightReleased() => Mouse.GetState().LeftButton == ButtonState.Released;
+		public static bool IsMouseRightReleased() => currentMouseState.LeftButton == ButtonState.Released;
 
 		/// <summary>
 		/// Checks if the left mouse button was just clicked.
@@ -78,8 +80,11 @@ namespace QuickNA.Essentials
 
 		public void Run()
 		{
-			previousKeyboardState = Keyboard.GetState();
-			previousMouseState = Mouse.GetState();
+			previousKeyboardState = currentKeyboardState;
+			previousMouseState = currentMouseState;
+
+			currentKeyboardState = Keyboard.GetState();
+			currentMouseState = Mouse.GetState();
 		}
 	}
 }
