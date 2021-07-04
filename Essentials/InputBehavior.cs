@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 
 namespace QuickNA.Essentials
 {
@@ -65,16 +64,6 @@ namespace QuickNA.Essentials
 		/// Checks if the left mouse button was just released.
 		/// </summary>
 		public static bool IsMouseRightJustReleased() => !IsMouseRightPressed() && previousMouseState.RightButton == ButtonState.Pressed;
-
-		/// <summary>
-		/// Gets the position of the mouse relative to the game window.
-		/// </summary>
-		public static Point GetMousePosition()
-		{
-			MouseState mouse = Mouse.GetState();
-
-			return new Point(mouse.X, mouse.Y);
-		}
 
 		public void Run()
 		{

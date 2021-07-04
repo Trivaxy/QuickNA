@@ -78,7 +78,7 @@ namespace QuickNA.Assets
 
 		private static void LoadAssetsInitially()
 		{
-			foreach (string file in Directory.EnumerateFiles(ContentManager.RootDirectory, "*.*", SearchOption.AllDirectories))
+			foreach (string file in Directory.EnumerateFiles(ContentManager.RootDirectory))
 				LoadFile(file);
 		}
 
