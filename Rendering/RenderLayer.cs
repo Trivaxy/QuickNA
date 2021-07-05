@@ -103,8 +103,7 @@ namespace QuickNA.Rendering
 		public Color ClearColor;
 		public bool Active;
 		private IList<IDrawable> draws;
-		private GraphicsDevice graphicsDevice;
-		private Action<Effect> postEffectSetup;
+		internal Action<Effect> postEffectSetup;
 		private Action<Effect> innerEffectSetup;
 
 		public RenderLayer(
@@ -135,7 +134,6 @@ namespace QuickNA.Rendering
 			ClearColor = clearColor;
 			Active = true;
 			draws = new List<IDrawable>();
-			this.graphicsDevice = graphicsDevice;
 			RenderTarget = new RenderTarget2D(graphicsDevice, width, height);
 			this.postEffectSetup = postEffectSetup;
 			this.innerEffectSetup = innerEffectSetup;
@@ -155,12 +153,12 @@ namespace QuickNA.Rendering
 
 		internal void RenderToTarget(SpriteBatch spriteBatch)
 		{
-			graphicsDevice.SetRenderTarget(RenderTarget);
-			graphicsDevice.Clear(ClearColor);
+			spriteBatch.GraphicsDevice.SetRenderTarget(RenderTarget);
+			spriteBatch.GraphicsDevice.Clear(ClearColor);
 
 			innerEffectSetup?.Invoke(InnerEffect);
 
-			spriteBatch.Begin(SpriteSortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, InnerEffect, TransformationMatrix);
+			spriteBatch.Begin(SpriteSortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, InnerEffect);
 
 			foreach (IDrawable drawable in draws)
 				drawable.Draw(spriteBatch);
@@ -168,19 +166,6 @@ namespace QuickNA.Rendering
 			spriteBatch.End();
 
 			draws.Clear();
-		}
-
-		internal void Draw(SpriteBatch spriteBatch)
-		{
-			RenderToTarget(spriteBatch);
-
-			graphicsDevice.SetRenderTarget(null);
-
-			postEffectSetup?.Invoke(PostEffect);
-
-			spriteBatch.Begin(SpriteSortMode, BlendState, SamplerState, DepthStencilState, RasterizerState, PostEffect, TransformationMatrix);
-			spriteBatch.Draw(RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-			spriteBatch.End();
 		}
 	}
 }

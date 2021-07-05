@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using QuickNA.Essentials;
 using System.Collections.Generic;
 
@@ -81,7 +82,21 @@ namespace QuickNA.Rendering
 
 			foreach ((_, RenderLayer layer) in renderLayers)
 				if (layer.Active)
-					layer.Draw(spriteBatch);
+					layer.RenderToTarget(spriteBatch);
+
+			spriteBatch.GraphicsDevice.SetRenderTarget(null);
+
+			foreach ((_, RenderLayer layer) in renderLayers)
+			{
+				if (!layer.Active)
+					continue;
+
+				layer.postEffectSetup?.Invoke(layer.PostEffect);
+
+				spriteBatch.Begin(SpriteSortMode.Deferred, layer.BlendState, layer.SamplerState, layer.DepthStencilState, layer.RasterizerState, layer.PostEffect, layer.TransformationMatrix);
+				spriteBatch.Draw(layer.RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+				spriteBatch.End();
+			}
 		}
 
 		private static void CheckLayerRegistered(string name)
