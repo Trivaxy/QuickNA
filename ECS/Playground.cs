@@ -9,20 +9,41 @@ namespace QuickNA.ECS
 	/// </summary>
 	public class Playground
 	{
+		internal static Playground[] Playgrounds = new Playground[8];
+
 		internal IDictionary<int, EntityGroup> entityGroups = new Dictionary<int, EntityGroup>();
 		internal EntityDescription[] entityDescriptions = new EntityDescription[32];
 		private IComponentCollection[] componentCollections = new IComponentCollection[4];
 		private Stack<uint> reusableEntityIDs = new Stack<uint>(64);
 
+		public uint ID { get; private set; }
+
 		public uint EntityCount { get; private set; }
+
+		public Playground()
+		{
+			for (uint i = 0; i < Playgrounds.Length; i++)
+			{
+				if (Playgrounds[i] == null)
+				{
+					ID = i;
+					Playgrounds[i] = this;
+					return;
+				}
+			}
+
+			ID = (uint)Playgrounds.Length;
+			Array.Resize(ref Playgrounds, Playgrounds.Length * 2);
+			Playgrounds[ID] = this;
+		}
 
 		public Entity NewEntity()
 		{
-			uint id = GetFreeEntityID();
-			entityDescriptions[id] = new EntityDescription();
+			uint entityID = GetFreeEntityID();
+			entityDescriptions[entityID] = new EntityDescription();
 			EntityCount++;
 
-			return new Entity(id, this);
+			return new Entity(entityID, ID);
 		}
 
 		public void DestroyEntity(uint entityID)
@@ -104,7 +125,7 @@ namespace QuickNA.ECS
 				if (!entityGroups.ContainsKey(componentGroupID))
 					entityGroups[componentGroupID] = new EntityGroup(new EntityDescription(TypeID<T>.ID));
 
-				Entity entity = new Entity(entityID, this);
+				Entity entity = new Entity(entityID, ID);
 				entityGroups[groupID].Add(entity);
 				entityGroups[componentGroupID].Add(entity);
 			}
@@ -120,7 +141,7 @@ namespace QuickNA.ECS
 
 			foreach (EntityGroup group in entityGroups.Values)
 				if (group.HasComponent(componentTypeID))
-					group.Remove(new Entity(entityID, this));
+					group.Remove(new Entity(entityID, ID));
 		}
 
 		private IReadOnlySet<Entity> Query(Span<int> componentIDs) => GetGroupOrEmpty(TypeIDs.HashTypeIDs(componentIDs));
