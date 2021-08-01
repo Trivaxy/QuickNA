@@ -7,7 +7,7 @@ namespace QuickNA.ECS
 	{
 		public static readonly EntityGroup Empty = new EntityGroup(new EntityDescription());
 
-		public EntityDescription entityDescription;
+		private EntityDescription entityDescription;
 		internal HashSet<Entity> entities;
 
 		public EntityGroup(EntityDescription entityDescription)
