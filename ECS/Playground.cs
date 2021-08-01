@@ -40,6 +40,10 @@ namespace QuickNA.ECS
 		public Entity NewEntity()
 		{
 			uint entityID = GetFreeEntityID();
+
+			if (entityID >= entityDescriptions.Length)
+				Array.Resize(ref entityDescriptions, entityDescriptions.Length * 2);
+
 			entityDescriptions[entityID] = new EntityDescription();
 			EntityCount++;
 
