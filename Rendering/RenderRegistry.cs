@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using QuickNA.Essentials;
+using QuickNA.ECS;
 using System.Collections.Generic;
 
 namespace QuickNA.Rendering
@@ -77,26 +77,26 @@ namespace QuickNA.Rendering
 
 		internal static void RenderAll(SpriteBatch spriteBatch)
 		{
-			foreach (Entity entity in World.QueryEntities<Entity>())
-				entity.Draw();
+			//foreach (Entity entity in World.QueryEntities<Entity>())
+			//	entity.Draw();
 
-			foreach ((_, RenderLayer layer) in renderLayers)
-				if (layer.Active)
-					layer.RenderToTarget(spriteBatch);
+			//foreach ((_, RenderLayer layer) in renderLayers)
+			//	if (layer.Active)
+			//		layer.RenderToTarget(spriteBatch);
 
-			spriteBatch.GraphicsDevice.SetRenderTarget(null);
+			//spriteBatch.GraphicsDevice.SetRenderTarget(null);
 
-			foreach ((_, RenderLayer layer) in renderLayers)
-			{
-				if (!layer.Active)
-					continue;
+			//foreach ((_, RenderLayer layer) in renderLayers)
+			//{
+			//	if (!layer.Active)
+			//		continue;
 
-				layer.postEffectSetup?.Invoke(layer.PostEffect);
+			//	layer.postEffectSetup?.Invoke(layer.PostEffect);
 
-				spriteBatch.Begin(SpriteSortMode.Deferred, layer.BlendState, layer.SamplerState, layer.DepthStencilState, layer.RasterizerState, layer.PostEffect, layer.TransformationMatrix);
-				spriteBatch.Draw(layer.RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-				spriteBatch.End();
-			}
+			//	spriteBatch.Begin(SpriteSortMode.Deferred, layer.BlendState, layer.SamplerState, layer.DepthStencilState, layer.RasterizerState, layer.PostEffect, layer.TransformationMatrix);
+			//	spriteBatch.Draw(layer.RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+			//	spriteBatch.End();
+			//}
 		}
 
 		private static void CheckLayerRegistered(string name)

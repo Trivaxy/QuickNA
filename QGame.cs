@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using QuickNA.Assets;
 using QuickNA.Assets.Loaders;
-using QuickNA.Essentials;
 using QuickNA.Rendering;
 using System.Reflection;
 
@@ -12,18 +11,18 @@ namespace QuickNA
 	public abstract class QGame : Game
 	{
 		private SpriteBatch spriteBatch;
-		protected readonly GraphicsDeviceManager GraphicsDeviceManager;
+		protected readonly GraphicsDeviceManager graphicsDeviceManager;
 
-		protected new GraphicsDevice GraphicsDevice => GraphicsDeviceManager.GraphicsDevice;
+		protected new GraphicsDevice GraphicsDevice => graphicsDeviceManager.GraphicsDevice;
 
 		protected QGame(int width, int height, bool fullscreen, bool vsync = true, string rootDirectory = "Content")
 		{
-			GraphicsDeviceManager = new GraphicsDeviceManager(this);
+			graphicsDeviceManager = new GraphicsDeviceManager(this);
 
-			GraphicsDeviceManager.PreferredBackBufferWidth = width;
-			GraphicsDeviceManager.PreferredBackBufferHeight = height;
-			GraphicsDeviceManager.IsFullScreen = fullscreen;
-			GraphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync;
+			graphicsDeviceManager.PreferredBackBufferWidth = width;
+			graphicsDeviceManager.PreferredBackBufferHeight = height;
+			graphicsDeviceManager.IsFullScreen = fullscreen;
+			graphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync;
 
 			Content.RootDirectory = rootDirectory;
 		}
@@ -32,8 +31,7 @@ namespace QuickNA
 		{
 			Assembly.LoadFrom("StbTrueTypeSharp.dll"); // needed for FontStashSharp to function without adding a reference to this dll
 
-			World.RegisterBehavior(new InputBehavior());
-			Setup();
+
 
 			base.Initialize();
 		}
@@ -55,14 +53,12 @@ namespace QuickNA
 
 			AssetServer.Start();
 
-			World.RunStartupBehaviors(); // placed in LoadContent in case the behaviors rely on assets
-
 			base.LoadContent();
 		}
 
 		protected sealed override void Draw(GameTime gameTime) => RenderRegistry.RenderAll(spriteBatch);
 
-		protected sealed override void Update(GameTime gameTime) => World.Update(gameTime);
+		//protected sealed override void Update(GameTime gameTime) => World.Update(gameTime);
 
 		/// <summary>
 		/// Called when QuickNA is registering loaders. Register your loaders here.
