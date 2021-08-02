@@ -50,7 +50,7 @@ namespace QuickNA.ECS
 			return new Entity(entityID, ID);
 		}
 
-		public void DestroyEntity(uint entityID)
+		internal void DestroyEntity(uint entityID)
 		{
 			reusableEntityIDs.Push(entityID);
 
