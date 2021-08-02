@@ -1,43 +1,47 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace QuickNA.ECS
 {
-	internal class EntityDescription
+	internal struct EntityDescription
 	{
-		public HashSet<byte> Components = new HashSet<byte>(); // TODO: a bitmask?
+		private ulong data;
 
-		public EntityDescription(params int[] componentIDs)
-		{
-			foreach (int id in componentIDs)
-				Components.Add((byte)id);
-		}
-
-		public bool HasComponent<T>()
-			where T : struct
-			=> Components.Contains((byte)TypeID<T>.ID);
+		public bool Empty => data == 0;
 
 		public void AddComponent<T>()
 			where T : struct
 			=> AddComponent(TypeID<T>.ID);
 
-		public void AddComponent(int componentID)
-			=> Components.Add((byte)componentID);
+		public void AddComponent(int id)
+			=> data |= (ulong)1 << id;
 
 		public void RemoveComponent<T>()
 			where T : struct
-			=> Components.Remove((byte)TypeID<T>.ID);
+			=> RemoveComponent(TypeID<T>.ID);
 
-		public EntityDescription Clone()
+		public void RemoveComponent(int id)
+			=> data &= ~((ulong)1 << id);
+
+		public bool HasComponent<T>()
+			where T : struct
+			=> HasComponent(TypeID<T>.ID);
+
+		public bool HasComponent(int id)
+			=> (data & ((ulong)1 << id)) == (ulong)1 << id;
+
+		public bool SubsetOf(EntityDescription other) => (other.data & data) == data;
+
+		public IEnumerable<int> GetComponents()
 		{
-			EntityDescription entityDescription = new EntityDescription();
-			HashSet<byte> newSet = new HashSet<byte>();
-
-			foreach (byte component in Components)
-				newSet.Add(component);
-
-			entityDescription.Components = newSet;
-
-			return entityDescription;
+			for (int i = BitOperations.LeadingZeroCount(data); i >= 0; i--)
+				if (HasComponent(i))
+					yield return i;
 		}
+
+		public override int GetHashCode() => data.GetHashCode();
+
+		public override string ToString() => "[" + string.Join(", ", GetComponents().Select(id => TypeIDs.GetTypeFromID(id))) + "]";
 	}
 }

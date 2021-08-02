@@ -11,7 +11,7 @@ namespace QuickNA.ECS
 	{
 		internal static Playground[] Playgrounds = new Playground[8];
 
-		internal IDictionary<int, EntityGroup> entityGroups = new Dictionary<int, EntityGroup>();
+		internal IDictionary<EntityDescription, EntityGroup> entityGroups = new Dictionary<EntityDescription, EntityGroup>();
 		internal EntityDescription[] entityDescriptions = new EntityDescription[32];
 		private IComponentCollection[] componentCollections = new IComponentCollection[4];
 		private Stack<uint> reusableEntityIDs = new Stack<uint>(64);
@@ -54,35 +54,11 @@ namespace QuickNA.ECS
 		{
 			reusableEntityIDs.Push(entityID);
 
-			foreach (int component in entityDescriptions[entityID].Components)
+			foreach (int component in entityDescriptions[entityID].GetComponents())
 				RemoveComponentFromEntity(entityID, component);
 
 			EntityCount--;
 		}
-
-		public IReadOnlySet<Entity> Query<T>()
-			where T : struct
-			=> Query(stackalloc int[] { TypeID<T>.ID });
-
-		public IReadOnlySet<Entity> Query<T1, T2>()
-			where T1 : struct
-			where T2 : struct
-			=> Query(stackalloc int[] { TypeID<T1>.ID, TypeID<T2>.ID });
-
-		public IReadOnlySet<Entity> Query<T1, T2, T3>()
-			where T1 : struct
-			where T2 : struct
-			where T3 : struct
-			=> Query(stackalloc int[] { TypeID<T1>.ID, TypeID<T2>.ID, TypeID<T3>.ID });
-
-		public IReadOnlySet<Entity> Query<T1, T2, T3, T4>()
-			where T1 : struct
-			where T2 : struct
-			where T3 : struct
-			where T4 : struct
-			=> Query(stackalloc int[] { TypeID<T1>.ID, TypeID<T2>.ID, TypeID<T3>.ID, TypeID<T4>.ID });
-
-		public IReadOnlySet<Entity> Query(EntityCriteria criteria) => GetGroupOrEmpty(criteria.targetGroupID);
 
 		internal bool EntityHasComponent<T>(uint entityID)
 			where T : struct
@@ -121,17 +97,14 @@ namespace QuickNA.ECS
 				componentCollection.Add(entityID, component);
 				entityDescriptions[entityID].AddComponent<T>();
 
-				int groupID = HashEntityComponentIDs(entityID);
-				if (!entityGroups.ContainsKey(groupID))
-					entityGroups[groupID] = new EntityGroup(entityDescriptions[entityID].Clone());
-
-				int componentGroupID = TypeIDs.HashTypeID(TypeID<T>.ID);
-				if (!entityGroups.ContainsKey(componentGroupID))
-					entityGroups[componentGroupID] = new EntityGroup(new EntityDescription(TypeID<T>.ID));
+				EntityDescription entityDescription = entityDescriptions[entityID];
+				if (!entityGroups.ContainsKey(entityDescription))
+					entityGroups[entityDescription] = new EntityGroup(entityDescription);
 
 				Entity entity = new Entity(entityID, ID);
-				entityGroups[groupID].Add(entity);
-				entityGroups[componentGroupID].Add(entity);
+				foreach (EntityGroup group in entityGroups.Values)
+					if (group.AcceptsEntity(entity))
+						group.Add(entity);
 			}
 		}
 
@@ -143,34 +116,37 @@ namespace QuickNA.ECS
 		{
 			componentCollections[componentTypeID].RemoveComponent(entityID);
 
+			ref EntityDescription description = ref entityDescriptions[entityID];
+			description.RemoveComponent(componentTypeID);
+
+			if (!entityGroups.ContainsKey(description))
+				entityGroups[description] = new EntityGroup(description);
+
+			Entity entity = new Entity(entityID, ID);
+			entityGroups[description].Add(entity);
+
 			foreach (EntityGroup group in entityGroups.Values)
-				if (group.HasComponent(componentTypeID))
-					group.Remove(new Entity(entityID, ID));
+				if (group.AcceptsEntity(entity))
+					group.Add(entity);
+				else
+					group.Remove(entity);
 		}
 
-		private IReadOnlySet<Entity> Query(Span<int> componentIDs) => GetGroupOrEmpty(TypeIDs.HashTypeIDs(componentIDs));
-
-		private IReadOnlySet<Entity> GetGroupOrEmpty(int groupID)
+		internal IReadOnlySet<Entity> Query(EntityDescription description)
 		{
-			if (entityGroups.TryGetValue(groupID, out EntityGroup group))
+			if (entityGroups.TryGetValue(description, out EntityGroup group))
 				return group.entities;
 
-			return EntityGroup.Empty.entities;
-		}
+			EntityGroup newGroup = new EntityGroup(description);
 
-		internal int HashEntityComponentIDs(uint entityID)
-		{
-			EntityDescription entityDescription = entityDescriptions[entityID];
-			Span<int> componentIDs = stackalloc int[entityDescription.Components.Count];
+			foreach (EntityGroup matchedGroup in entityGroups.Values)
+				if (description.SubsetOf(matchedGroup.description))
+					foreach (Entity entity in matchedGroup)
+						newGroup.Add(entity);
 
-			int i = 0;
-			foreach (byte componentID in entityDescription.Components)
-			{
-				componentIDs[i] = componentID;
-				i++;
-			}
+			entityGroups[description] = newGroup;
 
-			return TypeIDs.HashTypeIDs(componentIDs);
+			return newGroup.entities;
 		}
 
 		private uint GetFreeEntityID() => reusableEntityIDs.Count == 0 ? EntityCount : reusableEntityIDs.Pop();

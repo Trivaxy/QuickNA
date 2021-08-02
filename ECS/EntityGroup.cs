@@ -7,12 +7,12 @@ namespace QuickNA.ECS
 	{
 		public static readonly EntityGroup Empty = new EntityGroup(new EntityDescription());
 
-		private EntityDescription entityDescription;
+		internal EntityDescription description;
 		internal HashSet<Entity> entities;
 
-		public EntityGroup(EntityDescription entityDescription)
+		public EntityGroup(EntityDescription description)
 		{
-			this.entityDescription = entityDescription;
+			this.description = description;
 			entities = new HashSet<Entity>(64);
 		}
 
@@ -20,8 +20,10 @@ namespace QuickNA.ECS
 
 		public void Remove(Entity entity) => entities.Remove(entity);
 
-		public bool HasComponent(int componentID) => entityDescription.Components.Contains((byte)componentID);
+		public bool AcceptsEntity(Entity entity) => description.SubsetOf(entity.Description);
 
 		public IEnumerator GetEnumerator() => entities.GetEnumerator();
+
+		public override string ToString() => "Count: " + entities.Count;
 	}
 }

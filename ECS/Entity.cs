@@ -15,6 +15,8 @@
 		/// </summary>
 		public readonly uint PlaygroundID;
 
+		internal EntityDescription Description => Playground.Playgrounds[PlaygroundID].entityDescriptions[ID];
+
 		internal Entity(uint id, uint playgroundID)
 		{
 			ID = id;
@@ -69,7 +71,7 @@
 			EntityDescription entityDescription = playground.entityDescriptions[ID];
 			stringBuilder.Append($"Entity ({ID})");
 
-			foreach (byte componentID in entityDescription.Components)
+			foreach (int componentID in entityDescription.GetComponents())
 				stringBuilder.Append($" [{TypeIDs.GetTypeFromID(componentID).Name} {playground.GetEntityComponent(ID, componentID)}]");
 
 			return stringBuilder.ToString();

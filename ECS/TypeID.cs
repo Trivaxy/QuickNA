@@ -26,21 +26,6 @@ namespace QuickNA.ECS
 
 		public static Type GetTypeFromID(int typeID) => idToType[typeID];
 
-		public static bool IsRegistered(Type type) => typeToID.ContainsKey(type);
-
 		public static int GetNextFreeTypeID() => nextFreeTypeID++;
-
-		public static int HashTypeIDs(Span<int> ids)
-		{
-			MemoryExtensions.Sort(ids);
-
-			int hash = ids.Length;
-			foreach (int val in ids)
-				hash = unchecked(hash * 31 + val);
-
-			return hash;
-		}
-
-		public static int HashTypeID(int id) => unchecked(31 + id);
 	}
 }
