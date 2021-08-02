@@ -4,34 +4,41 @@ using System.Numerics;
 
 namespace QuickNA.ECS
 {
-	internal struct EntityDescription
+	public struct EntityDescription
 	{
 		private ulong data;
 
-		public bool Empty => data == 0;
+		public EntityDescription With<T>()
+			where T : struct
+		{
+			AddComponent<T>();
+			return this;
+		}
 
-		public void AddComponent<T>()
+		internal bool Empty => data == 0;
+
+		internal void AddComponent<T>()
 			where T : struct
 			=> AddComponent(TypeID<T>.ID);
 
-		public void AddComponent(int id)
+		internal void AddComponent(int id)
 			=> data |= (ulong)1 << id;
 
-		public void RemoveComponent<T>()
+		internal void RemoveComponent<T>()
 			where T : struct
 			=> RemoveComponent(TypeID<T>.ID);
 
-		public void RemoveComponent(int id)
+		internal void RemoveComponent(int id)
 			=> data &= ~((ulong)1 << id);
 
-		public bool HasComponent<T>()
+		internal bool HasComponent<T>()
 			where T : struct
 			=> HasComponent(TypeID<T>.ID);
 
-		public bool HasComponent(int id)
+		internal bool HasComponent(int id)
 			=> (data & ((ulong)1 << id)) == (ulong)1 << id;
 
-		public bool SubsetOf(EntityDescription other) => (other.data & data) == data;
+		internal bool SubsetOf(EntityDescription other) => (other.data & data) == data;
 
 		public IEnumerable<int> GetComponents()
 		{

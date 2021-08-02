@@ -37,6 +37,8 @@ namespace QuickNA.ECS
 			where T4 : struct
 			=> Query(stackalloc int[] { TypeID<T1>.ID, TypeID<T2>.ID, TypeID<T3>.ID, TypeID<T4>.ID });
 
+		protected IReadOnlySet<Entity> Query(EntityDescription description) => Playground.Query(description);
+
 		private IReadOnlySet<Entity> Query(Span<int> componentIDs)
 		{
 			EntityDescription description = new EntityDescription();
@@ -44,7 +46,7 @@ namespace QuickNA.ECS
 			for (int i = 0; i < componentIDs.Length; i++)
 				description.AddComponent(componentIDs[i]);
 
-			return Playground.Query(description);
+			return Query(description);
 		}
 	}
 }
