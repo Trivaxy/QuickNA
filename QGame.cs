@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using QuickNA.Assets;
 using QuickNA.Assets.Loaders;
+using QuickNA.ECS;
 using QuickNA.Rendering;
 using System.Reflection;
 
@@ -12,6 +13,10 @@ namespace QuickNA
 	{
 		private SpriteBatch spriteBatch;
 		protected readonly GraphicsDeviceManager graphicsDeviceManager;
+
+		protected Playground Playground { get; init; }
+
+		protected Dispatcher Dispatcher { get; init; }
 
 		protected new GraphicsDevice GraphicsDevice => graphicsDeviceManager.GraphicsDevice;
 
@@ -25,13 +30,16 @@ namespace QuickNA
 			graphicsDeviceManager.SynchronizeWithVerticalRetrace = vsync;
 
 			Content.RootDirectory = rootDirectory;
+
+			Playground = new Playground();
+			Dispatcher = new Dispatcher(Playground);
 		}
 
 		protected sealed override void Initialize()
 		{
 			Assembly.LoadFrom("StbTrueTypeSharp.dll"); // needed for FontStashSharp to function without adding a reference to this dll
 
-
+			Setup();
 
 			base.Initialize();
 		}
@@ -58,7 +66,7 @@ namespace QuickNA
 
 		protected sealed override void Draw(GameTime gameTime) => RenderRegistry.RenderAll(spriteBatch);
 
-		//protected sealed override void Update(GameTime gameTime) => World.Update(gameTime);
+		protected sealed override void Update(GameTime gameTime) => Dispatcher.Dispatch();
 
 		/// <summary>
 		/// Called when QuickNA is registering loaders. Register your loaders here.
@@ -67,7 +75,7 @@ namespace QuickNA
 		protected virtual void RegisterLoaders() { }
 
 		/// <summary>
-		/// Called when your game is initializing. Use this method to register behaviors and renderlayers.
+		/// Called when your game is initializing. Use this method to register systems as well as renderlayers.
 		/// </summary>
 		protected virtual void Setup() { }
 	}
