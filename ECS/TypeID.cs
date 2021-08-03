@@ -5,7 +5,17 @@ namespace QuickNA.ECS
 {
 	internal struct TypeID<T>
 	{
-		public static int ID = -1;
+		private static int id = -1;
+
+		public static int ID
+		{
+			get
+			{
+				if (id == -1)
+					id = TypeIDs.Register<T>();
+				return id;
+			}
+		}
 
 		public override int GetHashCode() => ID;
 	}
@@ -16,16 +26,16 @@ namespace QuickNA.ECS
 		private static IDictionary<int, Type> idToType = new Dictionary<int, Type>();
 		private static int nextFreeTypeID;
 
-		public static void Add(Type type, int id)
-		{
-			typeToID[type] = id;
-			idToType[id] = type;
-		}
-
 		public static int GetTypeID(Type type) => typeToID[type];
 
 		public static Type GetTypeFromID(int typeID) => idToType[typeID];
 
-		public static int GetNextFreeTypeID() => nextFreeTypeID++;
+		public static int Register<T>()
+		{
+			int id = nextFreeTypeID++;
+			typeToID[typeof(T)] = id;
+			idToType[id] = typeof(T);
+			return id;
+		}
 	}
 }

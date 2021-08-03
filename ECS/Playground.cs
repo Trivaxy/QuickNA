@@ -78,13 +78,6 @@ namespace QuickNA.ECS
 		internal void AddComponentToEntity<T>(uint entityID, T component)
 			where T : struct
 		{
-			if (TypeID<T>.ID == -1)
-			{
-				int typeID = TypeIDs.GetNextFreeTypeID();
-				TypeID<T>.ID = typeID;
-				TypeIDs.Add(typeof(T), typeID);
-			}
-
 			if (TypeID<T>.ID >= componentCollections.Length)
 				Array.Resize(ref componentCollections, componentCollections.Length * 2);
 
