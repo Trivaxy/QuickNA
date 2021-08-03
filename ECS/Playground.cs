@@ -62,7 +62,10 @@ namespace QuickNA.ECS
 
 		internal bool EntityHasComponent<T>(uint entityID)
 			where T : struct
-			=> entityDescriptions[entityID].HasComponent<T>();
+			=> EntityHasComponent(entityID, TypeID<T>.ID);
+
+		internal bool EntityHasComponent(uint entityID, int componentID)
+			=> entityDescriptions[entityID].HasComponent(componentID);
 
 		internal ref T GetEntityComponent<T>(uint entityID)
 			where T : struct
@@ -114,6 +117,9 @@ namespace QuickNA.ECS
 
 		internal void RemoveComponentFromEntity(uint entityID, int componentTypeID)
 		{
+			if (!EntityHasComponent(entityID, componentTypeID))
+				return;
+			 
 			componentCollections[componentTypeID].RemoveComponent(entityID);
 
 			ref EntityDescription description = ref entityDescriptions[entityID];
