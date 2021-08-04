@@ -76,5 +76,9 @@
 
 			return stringBuilder.ToString();
 		}
+
+		public static bool operator ==(Entity first, Entity second) => first.ID == second.ID && first.PlaygroundID == second.PlaygroundID;
+
+		public static bool operator !=(Entity first, Entity second) => first.ID != second.ID || first.PlaygroundID != second.PlaygroundID;
 	}
 }
