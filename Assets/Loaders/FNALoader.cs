@@ -26,11 +26,11 @@ namespace QuickNA.Assets.Loaders
 			// this check is needed in order to dispose assets that are being replaced, to avoid a memory leak
 			if (Assets<T>.Has(fileName) && Assets<T>.Get(fileName) is IDisposable disposable)
 			{
-				Assets<T>.Add(fileName, asset);
+				Assets<T>.Register(fileName, asset);
 				disposable.Dispose();
 			}
 			else
-				Assets<T>.Add(fileName, asset);
+				Assets<T>.Register(fileName, asset);
 		}
 
 		private T LoadAsset(string contentPath) => AssetServer.ContentManager.Load<T>(contentPath);

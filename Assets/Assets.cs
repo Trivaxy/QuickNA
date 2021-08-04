@@ -1,28 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace QuickNA.Assets
 {
 	public static class Assets<T>
 	{
-		private static IDictionary<string, T> assets = new Dictionary<string, T>();
+		private static T[] assets = new T[32];
+		private static IDictionary<string, int> identifierToSlot = new Dictionary<string, int>();
+		private static int nextFreeSlot;
 
-		public static T DefaultValue
+		public static int Count { get; private set; }
+
+		public static void Register(string identifier, T asset)
 		{
-			get;
-			set;
+			if (identifierToSlot.ContainsKey(identifier))
+				throw new QuickNAException("Cannot register multiple assets with the same name: " + identifier);
+
+			int slot = nextFreeSlot++;
+
+			if (slot >= assets.Length)
+				Array.Resize(ref assets, assets.Length * 2);
+
+			assets[slot] = asset;
+			identifierToSlot[identifier] = slot;
 		}
 
-		public static int Count => assets.Count;
-
-		public static T Get(string name)
+		public static Handle<T> Get(string identifier)
 		{
-			if (assets.TryGetValue(name, out T value))
-				return value;
-			return DefaultValue;
+			if (!identifierToSlot.ContainsKey(identifier))
+				throw new QuickNAException("Asset does not exist: " + identifier);
+
+			return new Handle<T>(identifierToSlot[identifier]);
 		}
 
-		public static void Add(string name, T value) => assets[name] = value;
+		internal static T Get(int slot) => assets[slot];
 
-		public static bool Has(string name) => assets.ContainsKey(name);
+		internal static bool Has(string identifier) => identifierToSlot.ContainsKey(identifier);
 	}
 }
