@@ -54,9 +54,6 @@ namespace QuickNA
 			AssetServer.RegisterLoader(new FNALoader<SoundEffect>(".wav"));
 			AssetServer.RegisterLoader(new FontSystemLoader());
 
-			Assets<Texture2D>.DefaultValue = new Texture2D(GraphicsDevice, 1, 1);
-			Assets<SoundEffect>.DefaultValue = new SoundEffect(new byte[] { 0 }, 0, AudioChannels.Mono);
-
 			RegisterLoaders();
 
 			AssetServer.Start();

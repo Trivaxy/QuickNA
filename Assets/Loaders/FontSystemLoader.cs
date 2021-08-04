@@ -31,7 +31,7 @@ namespace QuickNA.Assets.Loaders
 				fontSystem.AddFont(File.ReadAllBytes(FindFontPath(font.ToString())));
 			}
 
-			Assets<FontSystem>.Add(name, new FontSystem(fontSystem));
+			Assets<FontSystem>.Register(name, new FontSystem(fontSystem));
 		}
 
 		private string FindFontPath(string fontPath)
