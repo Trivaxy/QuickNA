@@ -11,7 +11,7 @@ namespace QuickNA.Assets
 
 		public static int Count { get; private set; }
 
-		public static void Register(string identifier, T asset)
+		public static Handle<T> Register(string identifier, T asset)
 		{
 			if (identifierToSlot.ContainsKey(identifier))
 				throw new QuickNAException("Cannot register multiple assets with the same name: " + identifier);
@@ -23,6 +23,8 @@ namespace QuickNA.Assets
 
 			assets[slot] = asset;
 			identifierToSlot[identifier] = slot;
+
+			return new Handle<T>(slot);
 		}
 
 		public static Handle<T> Get(string identifier)

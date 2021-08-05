@@ -9,6 +9,8 @@
 			this.slot = slot;
 		}
 
-		public static implicit operator T(Handle<T> handle) => Assets<T>.Get(handle.slot);
+		public T GetValue() => Assets<T>.Get(slot);
+
+		public static implicit operator T(Handle<T> handle) => handle.GetValue();
 	}
 }
