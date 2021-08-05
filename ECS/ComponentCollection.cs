@@ -43,7 +43,7 @@ namespace QuickNA.ECS
 			if (nextFreeSlot + 1 >= freeSlotStack.Length)
 				Array.Resize(ref freeSlotStack, freeSlotStack.Length * 2);
 
-			freeSlotStack[nextFreeSlot++] = entityID;
+			freeSlotStack[nextFreeSlot++] = indicesPerEntity[entityID];
 			Count--;
 		}
 
