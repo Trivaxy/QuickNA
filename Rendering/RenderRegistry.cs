@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using QuickNA.Assets;
 using QuickNA.ECS;
+using QuickNA.ECS.Components;
 using System.Collections.Generic;
 
 namespace QuickNA.Rendering
@@ -12,27 +14,28 @@ namespace QuickNA.Rendering
 	public static class RenderRegistry
 	{
 		private static IList<(string, RenderLayer)> renderLayers = new List<(string, RenderLayer)>();
+		private static EntityDescription renderEntityDescription = new EntityDescription().With<Transform>().With<Render>();
+		private static EntityDescription renderTextDescription = new EntityDescription().With<Transform>().With<RenderText>();
 
 		/// <summary>
-		/// Registers a RenderLayer with a given name.
-		/// Make sure you have a reference to your RenderLayer stored elsewhere, as the RenderRegistry will not expose them.
+		/// Registers a RenderLayer with a given name and returns a handle to it.
 		/// </summary>
 		/// <param name="name">The name of the RenderLayer.</param>
 		/// <param name="layer">The RenderLayer.</param>
-		public static void RegisterLayer(string name, RenderLayer layer)
+		public static Handle<RenderLayer> RegisterLayer(string name, RenderLayer layer)
 		{
 			CheckLayerRegistered(name);
 			renderLayers.Add((name, layer));
+			return Assets<RenderLayer>.Register(name, layer);
 		}
 
 		/// <summary>
-		/// Registers a RenderLayer with a given name after another RenderLayer with a specified name, causing it to draw over the target.
-		/// Make sure you have a reference to your RenderLayer stored elsewhere, as the RenderRegistry will not expose them.
+		/// Registers a RenderLayer with a given name after another RenderLayer with a specified name, causing it to draw over the target. Returns a handle to the layer.
 		/// </summary>
 		/// <param name="name">The name of the RenderLayer.</param>
 		/// <param name="layer">The RenderLayer.</param>
 		/// <param name="targetLayerName">The target RenderLayer's name.</param>
-		public static void RegisterLayerAfter(string name, RenderLayer layer, string targetLayerName)
+		public static Handle<RenderLayer> RegisterLayerAfter(string name, RenderLayer layer, string targetLayerName)
 		{
 			CheckLayerRegistered(name);
 
@@ -43,7 +46,7 @@ namespace QuickNA.Rendering
 				if (layerName == targetLayerName)
 				{
 					renderLayers.Insert(i + 1, (name, layer));
-					return;
+					return Assets<RenderLayer>.Register(name, layer);
 				}
 			}
 
@@ -51,13 +54,12 @@ namespace QuickNA.Rendering
 		}
 
 		/// <summary>
-		/// Registers a RenderLayer with a given name behind another RenderLayer with a specified name, causing it to draw behind the target.
-		/// Make sure you have a reference to your RenderLayer stored elsewhere, as the RenderRegistry will not expose them.
+		/// Registers a RenderLayer with a given name behind another RenderLayer with a specified name, causing it to draw behind the target. Returns a handle to the layer.
 		/// </summary>
 		/// <param name="name">The name of the RenderLayer.</param>
 		/// <param name="layer">The RenderLayer.</param>
 		/// <param name="targetLayerName">The target RenderLayer's name.</param>
-		public static void RegisterLayerBehind(string name, RenderLayer layer, string targetLayerName)
+		public static Handle<RenderLayer> RegisterLayerBehind(string name, RenderLayer layer, string targetLayerName)
 		{
 			CheckLayerRegistered(name);
 
@@ -68,35 +70,52 @@ namespace QuickNA.Rendering
 				if (layerName == targetLayerName)
 				{
 					renderLayers.Insert(i, (name, layer));
-					return;
+					return Assets<RenderLayer>.Register(name, layer);
 				}
 			}
 
 			throw new QuickNAException($"No layer with the name {name} has been registered");
 		}
 
-		internal static void RenderAll(SpriteBatch spriteBatch)
+		internal static void RenderAll(Playground playground, SpriteBatch spriteBatch)
 		{
-			//foreach (Entity entity in World.QueryEntities<Entity>())
-			//	entity.Draw();
+			foreach (Entity entity in playground.Query(renderEntityDescription))
+			{
+				Transform transform = entity.Get<Transform>();
+				Render render = entity.Get<Render>();
 
-			//foreach ((_, RenderLayer layer) in renderLayers)
-			//	if (layer.Active)
-			//		layer.RenderToTarget(spriteBatch);
+				render.RenderLayerHandle
+					.GetValue()
+					.Render(render.TextureHandle.GetValue(), transform.Position, render.SourceRectangle, render.Color, transform.Rotation, render.Origin, transform.Scale, render.SpriteEffects);
+			}
 
-			//spriteBatch.GraphicsDevice.SetRenderTarget(null);
+			foreach (Entity entity in playground.Query(renderTextDescription))
+			{
+				Transform transform = entity.Get<Transform>();
+				RenderText renderText = entity.Get<RenderText>();
 
-			//foreach ((_, RenderLayer layer) in renderLayers)
-			//{
-			//	if (!layer.Active)
-			//		continue;
+				renderText.RenderLayerHandle
+					.GetValue()
+					.RenderText(renderText.Text, renderText.FontSystemHandle.GetValue(), renderText.FontSize, transform.Position, renderText.Color, transform.Rotation, renderText.Origin, transform.Scale);
+			}
 
-			//	layer.postEffectSetup?.Invoke(layer.PostEffect);
+			foreach ((_, RenderLayer layer) in renderLayers)
+				if (layer.Active)
+					layer.RenderToTarget(spriteBatch);
 
-			//	spriteBatch.Begin(SpriteSortMode.Deferred, layer.BlendState, layer.SamplerState, layer.DepthStencilState, layer.RasterizerState, layer.PostEffect, layer.TransformationMatrix);
-			//	spriteBatch.Draw(layer.RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-			//	spriteBatch.End();
-			//}
+			spriteBatch.GraphicsDevice.SetRenderTarget(null);
+
+			foreach ((_, RenderLayer layer) in renderLayers)
+			{
+				if (!layer.Active)
+					continue;
+
+				layer.postEffectSetup?.Invoke(layer.PostEffect);
+
+				spriteBatch.Begin(SpriteSortMode.Deferred, layer.BlendState, layer.SamplerState, layer.DepthStencilState, layer.RasterizerState, layer.PostEffect, layer.TransformationMatrix);
+				spriteBatch.Draw(layer.RenderTarget, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+				spriteBatch.End();
+			}
 		}
 
 		private static void CheckLayerRegistered(string name)
