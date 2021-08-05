@@ -61,7 +61,7 @@ namespace QuickNA
 			base.LoadContent();
 		}
 
-		protected sealed override void Draw(GameTime gameTime) => RenderRegistry.RenderAll(spriteBatch);
+		protected sealed override void Draw(GameTime gameTime) => RenderRegistry.RenderAll(Playground, spriteBatch);
 
 		protected sealed override void Update(GameTime gameTime) => Dispatcher.Dispatch();
 
