@@ -26,10 +26,14 @@ namespace QuickNA.ECS
 
 		public void Add(uint entityID, T component)
 		{
-			if (entityID > indicesPerEntity.Length)
+			if (entityID >= indicesPerEntity.Length)
 				Array.Resize(ref indicesPerEntity, indicesPerEntity.Length * 2);
 
-			uint slot = nextFreeSlot > 0 ? freeSlotStack[nextFreeSlot--] : Count;
+			uint slot = nextFreeSlot > 0 ? freeSlotStack[--nextFreeSlot] : Count;
+
+			if (slot >= components.Length)
+				Array.Resize(ref components, components.Length * 2);
+
 			indicesPerEntity[entityID] = slot;
 			components[slot] = component;
 			Count++;
