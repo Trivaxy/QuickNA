@@ -14,6 +14,7 @@ namespace QuickNA.ECS
 		internal IDictionary<EntityDescription, EntityGroup> entityGroups = new Dictionary<EntityDescription, EntityGroup>();
 		internal EntityDescription[] entityDescriptions = new EntityDescription[32];
 		private IComponentCollection[] componentCollections = new IComponentCollection[4];
+		private MessageCollection messages = new MessageCollection();
 		private Stack<uint> reusableEntityIDs = new Stack<uint>(64);
 
 		public uint ID { get; private set; }
@@ -147,6 +148,17 @@ namespace QuickNA.ECS
 
 			return newGroup.entities;
 		}
+
+		internal void SendMessage<T>(T value)
+			where T : struct
+			=> messages.Send(value);
+
+		internal bool CheckForMessage<T>(out T message)
+			where T : struct
+			=> messages.CheckForMessage(out message);
+
+		internal void ClearMessages()
+			=> messages.Clear();
 
 		private uint GetFreeEntityID() => reusableEntityIDs.Count == 0 ? EntityCount : reusableEntityIDs.Pop();
 	}

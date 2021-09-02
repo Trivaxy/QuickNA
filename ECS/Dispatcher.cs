@@ -60,6 +60,8 @@ namespace QuickNA.ECS
 
 			foreach (GameSystem system in systems)
 				system.Run();
+
+			playground.ClearMessages();
 		}
 	}
 }

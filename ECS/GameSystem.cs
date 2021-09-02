@@ -48,5 +48,13 @@ namespace QuickNA.ECS
 
 			return Query(description);
 		}
+
+		protected void SendMessage<T>(T message)
+			where T : struct
+			=> Playground.SendMessage(message);
+
+		protected bool CheckForMessage<T>(out T message)
+			where T : struct
+			=> Playground.CheckForMessage(out message);
 	}
 }
