@@ -80,5 +80,13 @@
 		public static bool operator ==(Entity first, Entity second) => first.ID == second.ID && first.PlaygroundID == second.PlaygroundID;
 
 		public static bool operator !=(Entity first, Entity second) => first.ID != second.ID || first.PlaygroundID != second.PlaygroundID;
+
+		public override bool Equals(object obj)
+		{
+			if (obj is Entity entity)
+				return this == entity;
+
+			return false;
+		}
 	}
 }
