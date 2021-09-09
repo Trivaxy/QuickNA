@@ -24,5 +24,11 @@ namespace QuickNA.Utilities
 		}
 
 		public static Point ToPoint(this Vector2 vector) => new Point((int)vector.X, (int)vector.Y);
+
+		public static System.Numerics.Vector2 ToNumericsVector2(this Vector2 vector)
+			=> new System.Numerics.Vector2(vector.X, vector.Y);
+
+		public static Vector2 ToXNAVector2(this System.Numerics.Vector2 vector)
+			=> new Vector2(vector.X, vector.Y);
 	}
 }

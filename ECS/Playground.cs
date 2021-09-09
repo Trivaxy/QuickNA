@@ -96,7 +96,14 @@ namespace QuickNA.ECS
 
 				EntityDescription entityDescription = entityDescriptions[entityID];
 				if (!entityGroups.ContainsKey(entityDescription))
+				{
 					entityGroups[entityDescription] = new EntityGroup(entityDescription);
+
+					foreach (EntityGroup group in entityGroups.Values)
+						foreach (Entity otherEntity in group)
+							if (entityGroups[entityDescription].AcceptsEntity(otherEntity))
+								entityGroups[entityDescription].Add(otherEntity);
+				}
 
 				Entity entity = new Entity(entityID, ID);
 				foreach (EntityGroup group in entityGroups.Values)
@@ -107,13 +114,17 @@ namespace QuickNA.ECS
 
 		internal void RemoveComponentFromEntity<T>(uint entityID)
 			where T : struct
-			=> RemoveComponentFromEntity(entityID, TypeID<T>.ID);
+		{
+			int componentID = TypeID<T>.ID;
+			if (!EntityHasComponent(entityID, componentID))
+				return;
+
+			ComponentEvents<T>.InvokeRemove(new Entity(entityID, ID), GetEntityComponent<T>(entityID));
+			RemoveComponentFromEntity(entityID, componentID);
+		}
 
 		internal void RemoveComponentFromEntity(uint entityID, int componentTypeID)
 		{
-			if (!EntityHasComponent(entityID, componentTypeID))
-				return;
-			 
 			componentCollections[componentTypeID].RemoveComponent(entityID);
 
 			ref EntityDescription description = ref entityDescriptions[entityID];

@@ -37,7 +37,8 @@ namespace QuickNA
 
 		protected sealed override void Initialize()
 		{
-			Assembly.LoadFrom("StbTrueTypeSharp.dll"); // needed for FontStashSharp to function without adding a reference to this dll
+			Assembly.LoadFrom("StbTrueTypeSharp.dll");
+			Assembly.LoadFrom("Box2D.NetStandard.dll");
 
 			Setup();
 
