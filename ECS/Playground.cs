@@ -14,7 +14,7 @@ namespace QuickNA.ECS
 		internal IDictionary<EntityDescription, EntityGroup> entityGroups = new Dictionary<EntityDescription, EntityGroup>();
 		internal EntityDescription[] entityDescriptions = new EntityDescription[32];
 		private IComponentCollection[] componentCollections = new IComponentCollection[4];
-		private MessageCollection messages = new MessageCollection();
+		private IMessageStack[] messageStacks = new IMessageStack[4];
 		private Stack<uint> reusableEntityIDs = new Stack<uint>(64);
 
 		public uint ID { get; private set; }
@@ -160,16 +160,56 @@ namespace QuickNA.ECS
 			return newGroup.entities;
 		}
 
-		internal void SendMessage<T>(T value)
+		internal void SendMessage<T>(T message)
 			where T : struct
-			=> messages.Send(value);
+		{
+			int id = TypeID<T>.ID;
 
-		internal bool CheckForMessage<T>(out T message)
+			if (id >= messageStacks.Length)
+				Array.Resize(ref messageStacks, id * 2);
+
+			if (messageStacks[id] == null)
+				messageStacks[id] = new MessageStack<T>();
+
+			messageStacks[id].Send(message);
+		}
+
+		internal bool IncomingMessages<T>()
 			where T : struct
-			=> messages.CheckForMessage(out message);
+		{
+			int id = TypeID<T>.ID;
+
+			if (id >= messageStacks.Length)
+				return false;
+
+			if (messageStacks[id] == null)
+				messageStacks[id] = new MessageStack<T>();
+
+			return messageStacks[id].IncomingMessages;
+		}
+
+		internal IEnumerable<T> ReadMessages<T>()
+			where T : struct
+		{
+			int id = TypeID<T>.ID;
+
+			if (id >= messageStacks.Length)
+				return System.Linq.Enumerable.Empty<T>();
+
+			if (messageStacks[id] == null)
+			{
+				messageStacks[id] = new MessageStack<T>();
+				return System.Linq.Enumerable.Empty<T>();
+			}
+
+			return ((MessageStack<T>)messageStacks[id]).Read();
+		}
 
 		internal void ClearMessages()
-			=> messages.Clear();
+		{
+			foreach (IMessageStack stack in messageStacks)
+				stack?.Clear();
+		}
 
 		private uint GetFreeEntityID() => reusableEntityIDs.Count == 0 ? EntityCount : reusableEntityIDs.Pop();
 	}

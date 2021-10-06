@@ -53,8 +53,12 @@ namespace QuickNA.ECS
 			where T : struct
 			=> Playground.SendMessage(message);
 
-		protected bool CheckForMessage<T>(out T message)
+		protected bool IncomingMessages<T>()
 			where T : struct
-			=> Playground.CheckForMessage(out message);
+			=> Playground.IncomingMessages<T>();
+
+		protected IEnumerable<T> ReadMessages<T>()
+			where T : struct
+			=> Playground.ReadMessages<T>();
 	}
 }
