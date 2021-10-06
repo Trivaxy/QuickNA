@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using QuickNA.Assets.Loaders;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,8 @@ namespace QuickNA.Assets
 		internal static Dictionary<string, object> ContentManagerCache { get; set; }
 
 		internal static IList<IDisposable> ContentManagerDisposeCache { get; set; }
+
+		internal static GraphicsDevice GraphicsDevice { get; set; }
 
 		/// <summary>
 		/// Registers a loader.
@@ -70,7 +73,7 @@ namespace QuickNA.Assets
 				ContentManagerCache.Remove(assetKey);
 
 				if (value is IDisposable disposable)
-					ContentManagerDisposeCache.Remove(disposable); // We need to dispose it ourselves otherwise FNA disposes again after us
+					ContentManagerDisposeCache.Remove(disposable); // We need to dispose it ourselves since FNA won't
 			}
 
 			LoadFile(e.FullPath);

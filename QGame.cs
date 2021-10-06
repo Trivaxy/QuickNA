@@ -50,6 +50,7 @@ namespace QuickNA
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			AssetServer.ContentManager = Content;
+			AssetServer.GraphicsDevice = GraphicsDevice;
 
 			AssetServer.RegisterLoader(new FNALoader<Texture2D>(".png"));
 			AssetServer.RegisterLoader(new FNALoader<SoundEffect>(".wav"));
